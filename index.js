@@ -1,5 +1,7 @@
 const { ApolloServer, gql } = require('apollo-server');
 const MyDatabase = require('./MyDatabase')
+const { attachPaginate } = require('knex-paginate');
+
 
 const knexConfig = {
     client: "pg",
@@ -16,7 +18,7 @@ const knexConfig = {
 
 // you can also pass a knex instance instead of a configuration object
 const db = new MyDatabase(knexConfig);
-
+attachPaginate();
 const typeDefs = gql`
     type Book {
         title: String
@@ -34,14 +36,26 @@ const typeDefs = gql`
         roll: String
     }
 
+    input Page {
+        pageIndex: Int
+        pageSize: Int
+    }
+
     type Query {
         books: [Book]
+        queryStudents(keyword: String, page: Page): [Student]
         students(id:Int): [Student]
+    }
+
+    input StudentDTO {
+        name: String
+        roll: String
     }
     
     type Mutation {
         addBook(title: String, author: String): Book
         addStudent(name: String, roll: String): Int
+        addStudent2(student: StudentDTO): Int
         updateStudent(id:Int, name:String): Int
     }
 `;
@@ -71,6 +85,9 @@ const resolvers = {
         students: async (_, { id }) => {
             const datas = await db.getStudents(id);
             return datas;
+        },
+        queryStudents: async (_, { keyword, page }) => {
+            return await db.queryStudents(keyword, page);
         }
     },
     Mutation: {
@@ -78,10 +95,14 @@ const resolvers = {
             const { id } = await db.addStudents(name, roll);
             return id;
         },
+        addStudent2: async (_, { student }) => {
+            const { id } = await db.addStudents(student.name, student.roll);
+            return id;
+        },
         updateStudent: async (_, { id, name }) => {
             await db.updateStudent(id, name);
             return id;
-        }
+        },
     }
 };
 

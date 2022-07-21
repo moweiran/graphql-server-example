@@ -27,6 +27,25 @@ class MyDatabase extends SQLDataSource {
                 name
             });
     }
+
+    async queryStudents(keyword, { pageIndex, pageSize }) {
+        const offset = (pageIndex - 1) * pageSize;
+        const results = await this.knex()
+            .select("*")
+            .from('students')
+            // .paginate({ perPage: pageSize, currentPage: pageIndex, })
+            .where((builder) => {
+                if (keyword != "") {
+                    builder.whereLike('name', `%${keyword}%`);
+                }
+            })
+            .orderBy("id", "desc")
+            .limit(pageSize, { skipBinding: true })
+            .offset(offset)
+            ;            
+
+        return results;
+    }
 }
 
 module.exports = MyDatabase;

@@ -13,6 +13,7 @@
     "apollo-server": "^3.10.0",
     "datasource-sql": "^2.0.1",
     "graphql": "^16.5.0",
+    "knex-paginate": "^3.0.1",
     "pg": "^8.7.3"
   }
 }
