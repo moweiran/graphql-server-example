@@ -1,0 +1,9 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_DB=study
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 55000:5432
